@@ -63,8 +63,8 @@ class FermiRandomWalk:
 		
 		return self.positions, self.steps
 
-# Funzione per analizzare la distribuzione dell'energia e stimare gamma (senza usare log)
-def analyze_energy_distribution_nolog(steps, config_name):
+# Funzione per analizzare la distribuzione dell'energia e stimare gamma
+def analyze_energy_distribution(steps, config_name):
     energy = np.array(steps)     # Trasforma la lista in array numpy
     energy = energy[energy>0]    # Elimina eventuali valori negativi o zero
 	
@@ -148,7 +148,7 @@ def test_config(step_init, n_steps, x_init, gain, xmax_init=100.0):
         plt.show()
         
         # Analizza la distribuzione dell'energia e stampa gamma
-        gamma = analyze_energy_distribution_nolog(steps, config_name)
+        gamma = analyze_energy_distribution(steps, config_name)
         if gamma:
             print(f"Stima dell'indice spettrale γ per {config_name}: {gamma:.2f}")
 
