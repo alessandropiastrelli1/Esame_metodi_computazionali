@@ -3,7 +3,8 @@ PROGETTO: Random Walk con Accelerazione di Fermi
 -----------
 
 DESCRIZIONE:
-Questo script Python simula un random walk unidimensionale in cui il camminatore può subire accelerazioni in funzione di condizioni specifiche (attraversamento dell'origine, riflessione o superamento di una barriera). Il modello si ispira ai meccanismi di accelerazione tipo Fermi.
+Questo script Python simula un random walk unidimensionale in cui il walker può subire accelerazioni in funzione di condizioni specifiche (attraversamento dell'origine, riflessione o superamento di una barriera).
+Il modello si ispira ai meccanismi di accelerazione di Fermi.
 
 Tre configurazioni fisiche sono simulate:
 1. attraversamento_origine
@@ -19,7 +20,7 @@ Per ciascuna configurazione, viene:
 -----------
 
 UTILIZZO:
-Esegui lo script da terminale specificando 4 parametri numerici nell'ordine indicato:
+Eseguire lo script da terminale specificando 4 parametri numerici nell'ordine indicato e separati da uno spazio:
 
 python3 accelerazione_fermi_piastrelli.py <step_init> <n_steps> <x_init> <gain>
 
@@ -37,7 +38,7 @@ python3 accelerazione_fermi_piastrelli.py 1.0 1000 10.0 1.01
 NOTE:
 - Il parametro xmax (massimo valore raggiungibile nella direzione positiva) è fissato a 100.0 all'interno del codice.
 - La stima dell'indice spettrale gamma viene effettuata senza l'uso della scala logaritmica.
-- Se il fit della legge di potenza fallisce (pochi dati utili), il programma lo segnala ma prosegue per le altre configurazioni. (A volte avviene in quanto
+- Se il fit della legge di potenza fallisce (a volte avviene perché ci sono pochi dati utili), il programma lo segnala ma prosegue per le altre configurazioni.
 
 
 ------
