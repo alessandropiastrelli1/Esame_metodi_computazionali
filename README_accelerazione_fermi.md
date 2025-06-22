@@ -32,7 +32,7 @@ Dove:
 - gain      : fattore moltiplicativo di accelerazione (es. 1.05)
 
 Esempio:
-python3 accelerazione_fermi_piastrelli.py 1.0 1000 10.0 1.01
+python3 accelerazione_fermi_piastrelli.py 6000 1.0 10000 10.0 1.05
 
 -----------
 
