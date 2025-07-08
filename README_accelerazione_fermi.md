@@ -29,10 +29,10 @@ Dove:
 - step_init : lunghezza iniziale del passo (es. 1.0)
 - n_steps   : numero totale di passi (es. 10000)
 - x_init    : posizione iniziale del walker (es. 10.0)
-- gain      : fattore moltiplicativo di accelerazione (es. 1.02)
+- gain      : fattore moltiplicativo di accelerazione (es. 1.01)
 
 Esempio:
-python3 accelerazione_fermi_piastrelli.py 6000 1.0 10000 10.0 1.02
+python3 accelerazione_fermi_piastrelli.py 6000 1.0 10000 10.0 1.01
 
 -----------
 

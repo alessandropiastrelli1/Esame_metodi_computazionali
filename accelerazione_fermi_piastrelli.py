@@ -19,7 +19,6 @@ class FermiRandomWalk:
         self.config = config
         self.xmax = xmax_init
         self.xmax_decay = 0.99 if xmax_init else None
-        #self.rng = np.random.default_rng(seed)
         if seed is not None:
             np.random.seed(seed)
 
@@ -27,36 +26,43 @@ class FermiRandomWalk:
     def walk(self):
         x = np.full(self.n_walkers, self.x_init)
         step = np.full(self.n_walkers, self.step_init)
-        xmax_array = np.full(self.n_walkers, self.xmax)   # E' un array "dinamico" per ogni walker
+        xmax_array = np.full(self.n_walkers, self.xmax)   # Array "dinamico" per ogni walker
 
         positions = [x.copy()]
         steps = [step.copy()]
 
         for step_i in range(self.n_steps):
-            direction = 2 * np.random.randint(0, 2, size=self.n_walkers) - 1
-            x_new = x + direction * step
-
             if self.config == "attraversamento_origine":
+                direction = np.random.choice([-1, 1], size=self.n_walkers)
+                x_new = x + direction * step
                 crossed = ((x > 0) & (x_new <= 0)) | ((x < 0) & (x_new >= 0))
                 step[crossed] *= self.gain
 
             elif self.config == "doppia_riflessione":
-                reflect_left = (x > 0) & (x_new <= 0)
-                x_new[reflect_left] = -x_new[reflect_left]
-                step[reflect_left] *= self.gain
-
+                direction = np.random.choice([-1, 1], size=self.n_walkers)
+                direction[(x <= 0) & (direction == -1)] = 1
+                x_new = x + direction * step
+                reflect_origin = (x_new < 0)
+                x_new[reflect_origin] = -x_new[reflect_origin]
+                step[reflect_origin] *= self.gain
+               
                 reflect_right = np.abs(x_new) >= xmax_array
-                x_new[reflect_right] = 2 * xmax_array[reflect_right] - np.abs(x_new[reflect_right])
+                x_new[reflect_right] = np.abs(x_new[reflect_right]) - xmax_array[reflect_right]
+                
                 xmax_array[reflect_right] *= self.xmax_decay
 
             elif self.config == "doppia_accelerazione":
+                direction = np.random.choice([-1, 1], size=self.n_walkers)
+                direction[(x <= 0) & (direction == -1)] = 1
+                x_new = x + direction * step
                 reflect_left = (x > 0) & (x_new <= 0)
                 x_new[reflect_left] = -x_new[reflect_left]
                 step[reflect_left] *= self.gain
 
                 reflect_right = np.abs(x_new) >= xmax_array
-                x_new[reflect_right] = 2 * xmax_array[reflect_right] - np.abs(x_new[reflect_right])
+                x_new[reflect_right] = np.abs(x_new[reflect_right]) - xmax_array[reflect_right]
                 step[reflect_right] *= self.gain
+                
                 xmax_array[reflect_right] *= self.xmax_decay
 
             x = x_new
@@ -67,7 +73,7 @@ class FermiRandomWalk:
 
 # Analizza la distribuzione delle energie finali e calcola gamma (senza scala log)
 def analyze_energy_distribution(steps, config_name):
-    energy = steps[-1][steps[-1] > 0]  # Ultimo passo di tutti i walker
+    energy = steps[-1][steps[-1] > 0]  # Ultimo passo di tutti i walker al quadrato
 
     for bins in [50, 30, 20, 10]:  # Prova diversi bin finché ci sono abbastanza dati
         hist, bin_edges = np.histogram(energy, bins=bins, density=True)
@@ -77,15 +83,12 @@ def analyze_energy_distribution(steps, config_name):
         y = hist[mask]
         if len(x) >= 2:
             break
-
+            
+    # "Controllo qualità" dei dati
     if len(x) < 2:
         print(f"Fit non eseguibile per {config_name}: solo {len(x)} punto/i disponibili")
         return None
-
-	# Forza gli array a essere 1D (Utilizzato per testare il funzionamento nel caso "doppia_accelerazione")
-    #x = np.asarray(x).flatten()
-    #y = np.asarray(y).flatten()    
-    
+   
     try:
         if len(x) < 3 or np.max(y) < 1e-5:
             print(f"Dati insufficienti o troppo piatti per {config_name}")
@@ -112,7 +115,6 @@ def analyze_energy_distribution(steps, config_name):
     plt.ylabel("Frequenza relativa")
     plt.legend()
     plt.grid(True)
-    #plt.tight_layout()
     plt.show()
 
     return gamma_fit
@@ -128,7 +130,7 @@ def run_all_configs(n_walkers, step_init, n_steps, x_init, gain, xmax_init=80.0)
         # Plot di posizione e passo per alcuni camminatori
         plt.figure(figsize=(12, 20))
         plt.subplot(2, 1, 1)
-        for i in range(min(10, n_walkers)):
+        for i in range(min(10, n_walkers)):  # Mostro la posizione solo dei primi 10 walker
             plt.plot(positions[:, i], alpha=0.6)
         plt.title(f"Posizione - {config_name}")
         plt.xlabel("Passi")
@@ -136,7 +138,7 @@ def run_all_configs(n_walkers, step_init, n_steps, x_init, gain, xmax_init=80.0)
 
         plt.subplot(2, 1, 2)
         for i in range(min(10, n_walkers)):
-            plt.plot(steps[:, i], alpha=0.6)
+            plt.plot(steps[:, i], alpha=0.6)  # Mostro il passo solo dei primi 10 walker
         plt.title(f"Lunghezza del passo - {config_name}")
         plt.xlabel("Passi")
         plt.ylabel("Lunghezza passo")
